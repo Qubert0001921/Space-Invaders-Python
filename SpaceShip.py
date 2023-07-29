@@ -22,6 +22,6 @@ class SpaceShip(object):
         display.blit(self.img, (self.x, self.y))
         self.collideBoxes = [CollideBox(self.x + self.width // 4 + 5, self.y + 5, 30, self.height // 2 - 5),
                              CollideBox(self.x + 5, self.y + self.height // 2, self.width - 10, self.height // 2)]
-        for collideBox in self.collideBoxes:
-            pygame.draw.rect(display, (255, 0, 0), collideBox.get_rect(), 2)
+        # for collideBox in self.collideBoxes:
+        #     pygame.draw.rect(display, (255, 0, 0), collideBox.get_rect(), 2)
 

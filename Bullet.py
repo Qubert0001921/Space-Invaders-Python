@@ -9,7 +9,6 @@ class Bullet(object):
         self.width = width
         self.height = height
 
-        print(self.width)
         self.velocity = 8
 
         self.img = pygame.image.load(game_config.get_img_path("laser_beam.png"))
