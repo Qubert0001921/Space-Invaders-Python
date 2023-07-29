@@ -24,6 +24,8 @@ class Window(object):
         self.bullets = []
         self.asteroids = []
 
+        self.game_over = False
+
         self.clock = pygame.time.Clock()
 
         pygame.display.set_caption(self.caption)
@@ -34,8 +36,7 @@ class Window(object):
         # for asteroid in self.asteroids:
         #     asteroid.draw(self.display)
         #     asteroid.y += asteroid.velocity
-        for a in self.asteroids:
-            a.draw(self.display)
+
 
         self.player.draw(self.display)
 
@@ -47,6 +48,9 @@ class Window(object):
 
             if bullet.y + bullet.height < 0 or bullet.y >= self.height:
                 self.bullets.remove(bullet)
+
+        for a in self.asteroids:
+            a.draw(self.display)
 
 
         # print(len(self.bullets))
@@ -64,6 +68,9 @@ class Window(object):
         elif keys[pygame.K_DOWN]:
             self.player.y += self.player.velocity
 
+    def on_defeat(self):
+        self.game_over = True
+
     def mainloop(self):
         run = True
 
@@ -74,6 +81,7 @@ class Window(object):
         self.asteroids.append(Asteroid(200, 400, 60, 60))
 
         while run:
+            
             elapsed_time += self.clock.tick(game_config.FPS)
 
             if elapsed_time >= time_to_asteroids:
@@ -96,11 +104,10 @@ class Window(object):
                         self.bullets.append(Bullet(self.player.x + self.player.width // 2 - 33, self.player.y - 6, 12, 50))
 
             for asteroid in self.asteroids:
-                for hitBox in self.player.hitBoxes:
-                    if ((asteroid.x < hitBox[0] < asteroid.x + asteroid.width) or (asteroid.x + asteroid.width > hitBox[0] + hitBox[2] > asteroid.x))\
-                            and ((asteroid.y < hitBox[1] < asteroid.y + asteroid.height) or (hitBox[1] + hitBox[3] > asteroid.y and hitBox[1] < asteroid.y + asteroid.height)):
-
+                for asteroid_collide_box in asteroid.collideBoxes:
+                    if asteroid_collide_box.check_if_collide(self.player.collideBoxes):
                         self.player.hit()
+                        self.on_defeat()
 
             self.draw()
 

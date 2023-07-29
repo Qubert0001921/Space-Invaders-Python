@@ -1,5 +1,6 @@
 import pygame
 import game_config
+from CollideBox import CollideBox
 
 
 class SpaceShip(object):
@@ -9,10 +10,8 @@ class SpaceShip(object):
         self.x = x
         self.y = y
         self.velocity = 5
-        self.hitBox = (self.x, self.y, 40, self.height + 20)
-        self.hitBoxes = [(self.x + self.width // 4 + 5, self.y + 5, 30, self.height // 2 - 5),
-                         (self.x + 5, self.y + self.height // 2, self.width - 10, self.height // 2)]
-
+        self.collideBoxes = [CollideBox(self.x + self.width // 4 + 5, self.y + 5, 30, self.height // 2 - 5),
+                             CollideBox(self.x + 5, self.y + self.height // 2, self.width - 10, self.height // 2)]
         self.img = pygame.image.load(game_config.get_img_path("spaceship.png"))
         self.img = pygame.transform.scale(self.img, (self.width, self.height))
 
@@ -21,8 +20,8 @@ class SpaceShip(object):
 
     def draw(self, display):
         display.blit(self.img, (self.x, self.y))
-        self.hitBoxes = [(self.x + self.width // 4 + 5, self.y + 5, 30, self.height // 2 - 5),
-                         (self.x + 5, self.y + self.height // 2, self.width - 10, self.height // 2)]
-        # for hitBox in self.hitBoxes:
-        #     pygame.draw.rect(display, (255, 0, 0), hitBox, 2)
+        self.collideBoxes = [CollideBox(self.x + self.width // 4 + 5, self.y + 5, 30, self.height // 2 - 5),
+                             CollideBox(self.x + 5, self.y + self.height // 2, self.width - 10, self.height // 2)]
+        for collideBox in self.collideBoxes:
+            pygame.draw.rect(display, (255, 0, 0), collideBox.get_rect(), 2)
 
