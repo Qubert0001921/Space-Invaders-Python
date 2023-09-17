@@ -9,11 +9,12 @@ class BaseScene(object):
         self.clock = clock
         self.name = name
         self.scene_to_change = name
+        self.deltatime = 0
 
     def draw(self):
         pygame.display.set_caption(self.caption)
 
-    def mainloop(self):
+    def mainloop(self, deltatime):
         pass
 
     def handle_events(self, event):

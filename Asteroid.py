@@ -1,16 +1,19 @@
 import pygame
 import game_config
 from CollideBox import CollideBox
+from Hittable import Hittable
+import random
 
 
-class Asteroid(object):
+class Asteroid(Hittable):
     def __init__(self, x, y, width, height):
+        super().__init__()
         self.x = x
         self.y = y
         self.width = width
         self.height = height
-        self.velocity = 5
-        self.collideBoxes = [CollideBox(self.x + 5, self.y + 7, self.width // 2, self.height // 2),
+        self.velocity = random.randrange(500, game_config.MAX_ASTEROID_VELOCITY)
+        self.collide_boxes = [CollideBox(self.x + 5, self.y + 7, self.width // 2, self.height // 2),
                              CollideBox(self.x + self.width // 2 - 8, self.y + self.height // 2 - 2, self.width // 2,
                                         self.height // 2)]
 
@@ -19,7 +22,7 @@ class Asteroid(object):
 
     def draw(self, display):
         display.blit(self.img, (self.x, self.y))
-        self.collideBoxes = [CollideBox(self.x + 5, self.y + 7, self.width // 2, self.height // 2),
+        self.collide_boxes = [CollideBox(self.x + 5, self.y + 7, self.width // 2, self.height // 2),
                              CollideBox(self.x + self.width // 2 - 8, self.y + self.height // 2 - 2, self.width // 2,
                                         self.height // 2)]
         # for collideBox in self.collideBoxes:

@@ -13,5 +13,13 @@ class CollideBox(object):
                     or (self.y + self.height > collide_box.y and self.y < collide_box.y + collide_box.height))):
                 return True
 
+    def set_position(self, pos):
+        self.x = pos.x
+        self.y = pos.y
+
+    def set_position_tuple(self, tuple):
+        self.x = tuple[0]
+        self.y = tuple[1]
+
     def get_rect(self):
         return (self.x, self.y, self.width, self.height)
