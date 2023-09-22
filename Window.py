@@ -27,7 +27,7 @@ class Window(object):
             TitleScene(self, self.clock),
             GameScene(self, self.clock),
             SettingsScene(self, self.clock)
-        ], 0)
+        ], 2)
 
         pygame.display.set_caption(self.caption)
 

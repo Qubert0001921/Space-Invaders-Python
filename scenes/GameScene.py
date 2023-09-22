@@ -47,30 +47,30 @@ class GameScene(BaseScene):
         pygame.mixer.set_num_channels(10)
 
         self.engine_start_sound = pygame.mixer.Sound(game_config.get_sound_path("ship_start.wav"))
-        self.engine_start_sound.set_volume(0.5)
+        self.engine_start_sound.set_volume(game_config.MUSIC_VOL)
 
         self.asteroid_hit_sound = pygame.mixer.Sound(game_config.get_sound_path("ship_asteroid_hit.wav"))
-        self.asteroid_hit_sound.set_volume(0.5)
+        self.asteroid_hit_sound.set_volume(game_config.MUSIC_VOL)
 
         self.engine_running_sound = pygame.mixer.Sound(game_config.get_sound_path("ship_running_cont.wav"))
-        self.engine_running_sound.set_volume(0.5)
+        self.engine_running_sound.set_volume(game_config.MUSIC_VOL)
 
         self.warning_sound = pygame.mixer.Sound(game_config.get_sound_path("warning.wav"))
-        self.warning_sound.set_volume(0.5)
+        self.warning_sound.set_volume(game_config.MUSIC_VOL)
 
         self.overheat_sound = pygame.mixer.Sound(game_config.get_sound_path("notification.wav"))
-        self.overheat_sound.set_volume(1)
+        self.overheat_sound.set_volume(game_config.MUSIC_VOL*2)
         self.overheat_sound_played = False
         self.overheat_warning_border = (self.weapon_heat_max - 1 )/ self.weapon_heat_max
 
         self.explosion_sound = pygame.mixer.Sound(game_config.get_sound_path("explosion.wav"))
-        self.explosion_sound.set_volume(1)\
+        self.explosion_sound.set_volume(game_config.MUSIC_VOL*2)
 
         self.shot_sound = pygame.mixer.Sound(game_config.get_sound_path("ship_shot.wav"))
-        self.shot_sound.set_volume(0.3)
+        self.shot_sound.set_volume(game_config.MUSIC_VOL/2)
 
         self.trigger_sound = pygame.mixer.Sound(game_config.get_sound_path("trigger.wav"))
-        self.trigger_sound.set_volume(0.05)
+        self.trigger_sound.set_volume(game_config.MUSIC_VOL*10)
 
         self.damage_text_color = colors.WHITE
         self.heat_text_color = colors.WHITE

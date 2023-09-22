@@ -8,6 +8,7 @@ ASSETS_SOUND_PATH = path.join(ASSETS_PATH, "sound")
 FPS = 100
 MAX_ASTEROID_VELOCITY = 600
 GAME_NAME = "Space Invaders"
+MUSIC_VOL = 0.5
 
 
 def get_img_path(file_name):
