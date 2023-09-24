@@ -24,6 +24,9 @@ class SettingsScene(BaseScene):
         self.music_volume_slider = Slider(game_config.MUSIC_VOL * 100, 100, 0, Position(0, 0), 300, 10, colors.WHITE, colors.LIGHT_GRAY)
         self.fps_slider = Slider(game_config.FPS, game_config.FPS_MAX, 1, Position(0, 0), 300, 10, colors.WHITE, colors.LIGHT_GRAY)
 
+        self.music_volume_opt = Label((0, 0), self.options_font, "Music Volume", colors.WHITE)
+        self.fps_opt = Label((0, 0), self.options_font, "FPS", colors.WHITE)
+
         self.back_btn = Label(Position(20, 30), self.back_btn_font, "<", colors.WHITE, hittable=True)
 
     def handle_events(self, event):
@@ -54,8 +57,10 @@ class SettingsScene(BaseScene):
 
         general_menu = self.options_font.render("general", 0, colors.WHITE)
 
-        music_volume_opt = self.options_font.render("Music Volume", 0, colors.WHITE)
-        fps_opt = self.options_font.render("FPS", 0, colors.WHITE)
+        # music_volume_opt = self.options_font.render("Music Volume", 0, colors.WHITE)
+        # music_volume_opt = Text(self.options_font, "Music volume", colors.WHITE)
+        # fps_opt = self.options_font.render("FPS", 0, colors.WHITE)
+        # fps_opt = Text(self.options_font, "FPS", colors.WHITE)
 
         menu_margin_top = self.back_btn.text.get_height() + 40
         menu_margin_x = 20
@@ -86,23 +91,23 @@ class SettingsScene(BaseScene):
         options_margin_y = 70
         options_fr = ObjectRenderer(options_bg_pos.x + options_margin_x, options_bg_pos.y + options_margin_y, self.window.display, horizontal=False)
 
-        music_volume_opt_pos = options_fr.render(music_volume_opt, 0, 0)
-        fps_opt_pos = options_fr.render(fps_opt, 0, 0)
+        options_fr.render(self.music_volume_opt, 0, 0)
+        options_fr.render(self.fps_opt, 0, 0)
 
         music_volume_slider_value = self.options_font.render(f"{round(self.music_volume_slider.value / self.music_volume_slider.max_value * 100)}%", 0, colors.WHITE)
-        self.music_volume_slider.pos_bar = Position(music_volume_opt_pos.x + music_volume_opt.get_width() + 30, music_volume_opt_pos.y + music_volume_opt.get_height()//2 - 5)
+        self.music_volume_slider.pos_bar = Position(self.music_volume_opt.pos.x + self.music_volume_opt.width + 30, self.music_volume_opt.pos.y + self.music_volume_opt.height//2 - 5)
         self.music_volume_slider.change_value(self.music_volume_slider.value)
         self.music_volume_slider.draw(self.window.display)
 
         # pygame.draw.rect(self.window.display, colors.RED, self.music_volume_slider.collide_boxes[0].get_rect(), 2)
 
-        self.window.display.blit(music_volume_slider_value, (music_volume_opt_pos.x + music_volume_opt.get_width() + self.music_volume_slider.width + 60, music_volume_opt_pos.y))
+        self.window.display.blit(music_volume_slider_value, (self.music_volume_opt.pos.x + self.music_volume_opt.width + self.music_volume_slider.width + 60, self.music_volume_opt.pos.y))
 
-        self.fps_slider.pos_bar = Position(music_volume_opt_pos.x + music_volume_opt.get_width() + 30, fps_opt_pos.y + fps_opt.get_height()//2 - 5)
+        self.fps_slider.pos_bar = Position(self.music_volume_opt.pos.x + self.music_volume_opt.width + 30, self.fps_opt.pos.y + self.fps_opt.height//2 - 5)
         self.fps_slider.change_value(self.fps_slider.value)
         self.fps_slider.draw(self.window.display)
 
-        self.window.display.blit(self.options_font.render(str(self.fps_slider.value), 0, colors.WHITE), (music_volume_opt_pos.x + music_volume_opt.get_width() + self.fps_slider.width + 60, fps_opt_pos.y))
+        self.window.display.blit(self.options_font.render(str(self.fps_slider.value), 0, colors.WHITE), (self.music_volume_opt.pos.x + self.music_volume_opt.width + self.fps_slider.width + 60, self.fps_opt.pos.y))
 
         # pygame.draw.rect(self.window.display, colors.RED, self.fps_slider.collide_boxes[0].get_rect(), 2)
 

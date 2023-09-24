@@ -29,7 +29,7 @@ class Window(object):
             TitleScene(self, self.clock),
             GameScene(self, self.clock),
             SettingsScene(self, self.clock)
-        ], 2)
+        ], 1)
 
         self.cursor_images = [pygame.image.load(game_config.get_img_path("arrow_cursor1.png")), pygame.image.load(game_config.get_img_path("hand_cursor2.png"))]
         self.cursor_images = [pygame.transform.scale(x, (x.get_width()//2, x.get_height()//2) ) for x in self.cursor_images]

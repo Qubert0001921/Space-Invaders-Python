@@ -8,6 +8,8 @@ from Asteroid import Asteroid
 from Bullet import Bullet
 from ObjectRenderer import ObjectRenderer
 from CollideBox import CollideBox
+from Label import Label
+from Position import Position
 import math
 import random
 
@@ -26,7 +28,7 @@ class GameScene(BaseScene):
         self.elapsed_time = 0
         self.number_of_row = 1
 
-        self.game_over = True
+        self.game_over = False
 
         self.font_title = pygame.font.Font(game_config.get_font_path("Silkscreen-Regular.ttf"), 110)
         self.font_normal = pygame.font.Font(game_config.get_font_path("Silkscreen-Regular.ttf"), 25)
@@ -47,31 +49,30 @@ class GameScene(BaseScene):
         pygame.mixer.set_num_channels(10)
 
         self.engine_start_sound = pygame.mixer.Sound(game_config.get_sound_path("ship_start.wav"))
-
         self.asteroid_hit_sound = pygame.mixer.Sound(game_config.get_sound_path("ship_asteroid_hit.wav"))
-
         self.engine_running_sound = pygame.mixer.Sound(game_config.get_sound_path("ship_running_cont.wav"))
-
         self.warning_sound = pygame.mixer.Sound(game_config.get_sound_path("warning.wav"))
+        self.explosion_sound = pygame.mixer.Sound(game_config.get_sound_path("explosion.wav"))
+        self.shot_sound = pygame.mixer.Sound(game_config.get_sound_path("ship_shot.wav"))
+        self.trigger_sound = pygame.mixer.Sound(game_config.get_sound_path("trigger.wav"))
 
         self.overheat_sound = pygame.mixer.Sound(game_config.get_sound_path("notification.wav"))
         self.overheat_sound_played = False
         self.overheat_warning_border = (self.weapon_heat_max - 1 )/ self.weapon_heat_max
 
-        self.explosion_sound = pygame.mixer.Sound(game_config.get_sound_path("explosion.wav"))
-
-        self.shot_sound = pygame.mixer.Sound(game_config.get_sound_path("ship_shot.wav"))
-
-        self.trigger_sound = pygame.mixer.Sound(game_config.get_sound_path("trigger.wav"))
-
         self.damage_text_color = colors.WHITE
         self.heat_text_color = colors.WHITE
 
-        self.return_btn_text = self.font_normal.render("Return", 0, colors.EMPHASISE)
-        self.return_btn_collideBox = CollideBox(0, 0, self.return_btn_text.get_width(), self.return_btn_text.get_height())
+        self.return_btn = Label(Position(0, 0), self.font_normal, "Return", colors.EMPHASISE, hittable=True)
+
         self.mouse_collideBox = CollideBox(0, 0, 5, 5)
         self.mouse_btns = pygame.mouse.get_pressed()
-        
+
+        self.score_hit_text = Label(Position(0, 0), self.font_normal, "", colors.WHITE)
+        self.score_missed_text = Label(Position(0, 0), self.font_normal, "", colors.WHITE)
+        self.score_immunity_text = Label(Position(0, 0), self.font_normal, "", colors.WHITE)
+        self.weapon_heat_text = Label(Position(0, 0), self.font_normal, "", colors.WHITE)
+
     def init(self):
         super().init()
         print("NOW")
@@ -84,16 +85,19 @@ class GameScene(BaseScene):
         self.shot_sound.set_volume(game_config.MUSIC_VOL / 2)
         self.trigger_sound.set_volume(game_config.MUSIC_VOL * 10)
 
+    def update_texts(self):
+        self.score_hit_text.change_text(f"HIT: {self.score_hit}")
+        self.score_missed_text.change_text(f"MISSED: {self.score_missed}")
+        self.score_immunity_text.change_text(f"DAMAGE: {round((self.player.immunity_max - self.player.immunity) / self.player.immunity_max * 100)}%")
+        self.weapon_heat_text.change_text(f"HEAT: {round(self.weapon_heat / self.weapon_heat_max * 100)}%")
+
     def draw(self):
         super().draw()
 
         self.window.display.blit(self.bg_img, (0, 0))
         self.player.draw(self.window.display)
 
-        score_hit_text = self.font_normal.render(f"HIT: {self.score_hit}", 0, (255, 255, 255))
-        score_missed_text = self.font_normal.render(f"MISSED: {self.score_missed}", 0, (255, 255, 255))
-        score_immunity_text = self.font_normal.render(f"DAMAGE: {round((self.player.immunity_max - self.player.immunity) / self.player.immunity_max * 100) }%", 0, self.damage_text_color)
-        weapon_heat_text = self.font_normal.render(f"HEAT: {round(self.weapon_heat / self.weapon_heat_max * 100)}%", 0, self.heat_text_color)
+        self.update_texts()
 
         if not self.game_over:
             if self.time_to_start > 0:
@@ -105,10 +109,10 @@ class GameScene(BaseScene):
             font_renderer = ObjectRenderer(15, 15, self.window.display, horizontal=False)
             text_y_margin = 0
 
-            font_renderer.render(score_hit_text, 0, text_y_margin)
-            font_renderer.render(score_missed_text, 0, text_y_margin)
-            font_renderer.render(score_immunity_text, 0, text_y_margin)
-            font_renderer.render(weapon_heat_text, 0, text_y_margin)
+            font_renderer.render(self.score_hit_text, 0, text_y_margin)
+            font_renderer.render(self.score_missed_text, 0, text_y_margin)
+            font_renderer.render(self.score_immunity_text, 0, text_y_margin)
+            font_renderer.render(self.weapon_heat_text, 0, text_y_margin)
 
             for asteroid in self.asteroids:
                 if asteroid.y > self.window.display.get_height():
@@ -138,14 +142,13 @@ class GameScene(BaseScene):
 
             font_renderer = ObjectRenderer(game_over_text_pos[0], game_over_text_pos[1] + game_over_text.get_height() + 2, self.window.display)
             between_text_margin = 30
-            x_margin = (game_over_text.get_width() - score_hit_text.get_width() - score_missed_text.get_width() - between_text_margin) / 2
+            x_margin = (game_over_text.get_width() - self.score_hit_text.width - self.score_missed_text.width - between_text_margin) / 2
 
-            font_renderer.render(score_hit_text, x_margin, 0)
-            font_renderer.render(score_missed_text, between_text_margin, 0)
+            font_renderer.render(self.score_hit_text, x_margin, 0)
+            font_renderer.render(self.score_missed_text, between_text_margin, 0)
 
-            return_btn_fr = ObjectRenderer(game_over_text_pos[0], game_over_text_pos[1] + game_over_text.get_height() + 4 + score_hit_text.get_height(), self.window.display, horizontal=False)
-            self.return_btn_collideBox.set_position(return_btn_fr.render(self.return_btn_text,game_over_text.get_width() //2 - self.return_btn_text.get_width()//2,0))
-
+            return_btn_fr = ObjectRenderer(game_over_text_pos[0], game_over_text_pos[1] + game_over_text.get_height() + 4 + self.score_hit_text.height, self.window.display, horizontal=False)
+            return_btn_fr.render(self.return_btn, game_over_text.get_width() //2 - self.return_btn.width//2, 0)
 
             # pygame.draw.rect(self.window.display, colors.RED, (pos.x, pos.y, self.return_btn_text.get_width(), self.return_btn_text.get_height()), 2)
             # pygame.draw.rect(self.window.display, colors.RED, (pos_1.x, pos_1.y, score_hit_text.get_width(), score_hit_text.get_height()), 2)
@@ -205,7 +208,7 @@ class GameScene(BaseScene):
                 self.mouse_collideBox.x = mouse_pos[0]
                 self.mouse_collideBox.y = mouse_pos[1]
 
-                if self.mouse_collideBox.check_if_collide([self.return_btn_collideBox]):
+                if self.mouse_collideBox.check_if_collide(self.return_btn.collide_boxes):
                     self.on_return_clicked()
 
     def play_sound_once(self, sound):
@@ -214,9 +217,21 @@ class GameScene(BaseScene):
     def on_return_clicked(self):
         self.scene_to_change = "Title"
 
+    def update_mouse_collide_box(self):
+        mouse_pos = pygame.mouse.get_pos()
+        self.mouse_collideBox.x = mouse_pos[0]
+        self.mouse_collideBox.y = mouse_pos[1]
+
     def mainloop(self, deltatime):
         super().mainloop(deltatime)
-        # print(self.weapon_heat)
+        self.update_mouse_collide_box()
+
+        if self.mouse_collideBox.check_if_collide(self.return_btn.collide_boxes):
+            self.return_btn.change_color(colors.WHITE)
+            self.window.current_cursor = 1
+        else:
+            self.return_btn.change_color(colors.EMPHASISE)
+            self.window.current_cursor = 0
 
         if not self.game_over:
 
@@ -230,8 +245,10 @@ class GameScene(BaseScene):
                 if self.engine_start_sound.get_num_channels() == 0:
                     self.play_sound_once(self.engine_running_sound)
 
+                # TODO: FIX THIS F***ING SHIT WITH COLORS!!!
+
                 if self.weapon_heat / self.weapon_heat_max >= self.overheat_warning_border and self.weapon_heat != self.weapon_heat_max:
-                    self.heat_text_color = colors.WARNING
+                    self.weapon_heat_text.change_color(colors.WARNING)
                 elif self.weapon_heat == self.weapon_heat_max:
                     self.heat_text_color = colors.HIGH_WARNING
                 else:
