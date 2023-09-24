@@ -2,8 +2,9 @@ import pygame
 from scenes.BaseScene import BaseScene
 import game_config
 import colors
-from FontRenderer import FontRenderer
+from ObjectRenderer import ObjectRenderer
 from Position import Position
+from Label import Label
 from CollideBox import CollideBox
 
 
@@ -23,6 +24,10 @@ class TitleScene(BaseScene):
         self.play_option_collide_box = CollideBox(0, 0, self.play_option.get_width(), self.play_option.get_height())
         self.settings_option_collide_box = CollideBox(0, 0, self.settings_option.get_width(), self.settings_option.get_height())
 
+    def init(self):
+        super().init()
+        self.window.current_cursor = 0
+
     def draw(self):
         bg = pygame.image.load(game_config.get_img_path("title_screen_bg.jpg"))
         bg = pygame.transform.scale(bg, (self.window.display.get_width(), self.window.display.get_height()))
@@ -33,7 +38,7 @@ class TitleScene(BaseScene):
 
         self.window.display.blit(title_text, title_text_pos.to_tuple())
 
-        font_renderer = FontRenderer(title_text_pos.x, title_text_pos.y + title_text.get_height() + 20, self.window.display, horizontal=False)
+        font_renderer = ObjectRenderer(title_text_pos.x, title_text_pos.y + title_text.get_height() + 20, self.window.display, horizontal=False)
 
         self.play_option_collide_box.set_position(font_renderer.render(self.play_option, title_text.get_width() // 2 - self.play_option.get_width() // 2, 0))
         self.settings_option_collide_box.set_position(font_renderer.render(self.settings_option, title_text.get_width() // 2 - self.settings_option.get_width() // 2, 0))

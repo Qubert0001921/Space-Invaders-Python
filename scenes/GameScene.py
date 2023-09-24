@@ -6,7 +6,7 @@ import game_config
 from SpaceShip import SpaceShip
 from Asteroid import Asteroid
 from Bullet import Bullet
-from FontRenderer import FontRenderer
+from ObjectRenderer import ObjectRenderer
 from CollideBox import CollideBox
 import math
 import random
@@ -47,30 +47,22 @@ class GameScene(BaseScene):
         pygame.mixer.set_num_channels(10)
 
         self.engine_start_sound = pygame.mixer.Sound(game_config.get_sound_path("ship_start.wav"))
-        self.engine_start_sound.set_volume(game_config.MUSIC_VOL)
 
         self.asteroid_hit_sound = pygame.mixer.Sound(game_config.get_sound_path("ship_asteroid_hit.wav"))
-        self.asteroid_hit_sound.set_volume(game_config.MUSIC_VOL)
 
         self.engine_running_sound = pygame.mixer.Sound(game_config.get_sound_path("ship_running_cont.wav"))
-        self.engine_running_sound.set_volume(game_config.MUSIC_VOL)
 
         self.warning_sound = pygame.mixer.Sound(game_config.get_sound_path("warning.wav"))
-        self.warning_sound.set_volume(game_config.MUSIC_VOL)
 
         self.overheat_sound = pygame.mixer.Sound(game_config.get_sound_path("notification.wav"))
-        self.overheat_sound.set_volume(game_config.MUSIC_VOL*2)
         self.overheat_sound_played = False
         self.overheat_warning_border = (self.weapon_heat_max - 1 )/ self.weapon_heat_max
 
         self.explosion_sound = pygame.mixer.Sound(game_config.get_sound_path("explosion.wav"))
-        self.explosion_sound.set_volume(game_config.MUSIC_VOL*2)
 
         self.shot_sound = pygame.mixer.Sound(game_config.get_sound_path("ship_shot.wav"))
-        self.shot_sound.set_volume(game_config.MUSIC_VOL/2)
 
         self.trigger_sound = pygame.mixer.Sound(game_config.get_sound_path("trigger.wav"))
-        self.trigger_sound.set_volume(game_config.MUSIC_VOL*10)
 
         self.damage_text_color = colors.WHITE
         self.heat_text_color = colors.WHITE
@@ -79,6 +71,18 @@ class GameScene(BaseScene):
         self.return_btn_collideBox = CollideBox(0, 0, self.return_btn_text.get_width(), self.return_btn_text.get_height())
         self.mouse_collideBox = CollideBox(0, 0, 5, 5)
         self.mouse_btns = pygame.mouse.get_pressed()
+        
+    def init(self):
+        super().init()
+        print("NOW")
+        self.engine_start_sound.set_volume(game_config.MUSIC_VOL)
+        self.asteroid_hit_sound.set_volume(game_config.MUSIC_VOL)
+        self.engine_running_sound.set_volume(game_config.MUSIC_VOL)
+        self.warning_sound.set_volume(game_config.MUSIC_VOL)
+        self.overheat_sound.set_volume(game_config.MUSIC_VOL * 2)
+        self.explosion_sound.set_volume(game_config.MUSIC_VOL * 2)
+        self.shot_sound.set_volume(game_config.MUSIC_VOL / 2)
+        self.trigger_sound.set_volume(game_config.MUSIC_VOL * 10)
 
     def draw(self):
         super().draw()
@@ -98,7 +102,7 @@ class GameScene(BaseScene):
                 count_text = self.font_title.render(count_text_content, 0, colors.WHITE)
                 self.window.display.blit(count_text, (self.window.display.get_width() // 2 - count_text.get_width()//2, self.window.display.get_height()//2 - count_text.get_height()))
 
-            font_renderer = FontRenderer(15, 15, self.window.display, horizontal=False)
+            font_renderer = ObjectRenderer(15, 15, self.window.display, horizontal=False)
             text_y_margin = 0
 
             font_renderer.render(score_hit_text, 0, text_y_margin)
@@ -132,14 +136,14 @@ class GameScene(BaseScene):
 
             self.window.display.blit(game_over_text, game_over_text_pos)
 
-            font_renderer = FontRenderer(game_over_text_pos[0], game_over_text_pos[1] + game_over_text.get_height() + 2, self.window.display)
+            font_renderer = ObjectRenderer(game_over_text_pos[0], game_over_text_pos[1] + game_over_text.get_height() + 2, self.window.display)
             between_text_margin = 30
             x_margin = (game_over_text.get_width() - score_hit_text.get_width() - score_missed_text.get_width() - between_text_margin) / 2
 
             font_renderer.render(score_hit_text, x_margin, 0)
             font_renderer.render(score_missed_text, between_text_margin, 0)
 
-            return_btn_fr = FontRenderer(game_over_text_pos[0], game_over_text_pos[1] + game_over_text.get_height() + 4 + score_hit_text.get_height(), self.window.display, horizontal=False)
+            return_btn_fr = ObjectRenderer(game_over_text_pos[0], game_over_text_pos[1] + game_over_text.get_height() + 4 + score_hit_text.get_height(), self.window.display, horizontal=False)
             self.return_btn_collideBox.set_position(return_btn_fr.render(self.return_btn_text,game_over_text.get_width() //2 - self.return_btn_text.get_width()//2,0))
 
 

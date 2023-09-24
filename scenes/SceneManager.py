@@ -16,4 +16,5 @@ class SceneManager(object):
                 filter(lambda x: x.name == self.get_current_scene().scene_to_change,
                        self.scenes))[0])
             self.scenes[current_scene_index].scene_to_change = self.scenes[current_scene_index].name
+            self.scenes[self.currentSceneIndex].init()
 

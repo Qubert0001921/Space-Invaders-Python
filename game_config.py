@@ -6,6 +6,7 @@ ASSETS_IMG_PATH = path.join(ASSETS_PATH, "img")
 ASSETS_FONT_PATH = path.join(ASSETS_PATH, "fonts")
 ASSETS_SOUND_PATH = path.join(ASSETS_PATH, "sound")
 FPS = 100
+FPS_MAX = 250
 MAX_ASTEROID_VELOCITY = 600
 GAME_NAME = "Space Invaders"
 MUSIC_VOL = 0.5

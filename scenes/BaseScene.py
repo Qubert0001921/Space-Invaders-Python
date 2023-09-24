@@ -19,3 +19,6 @@ class BaseScene(object):
 
     def handle_events(self, event):
         pass
+
+    def init(self):
+        pass
