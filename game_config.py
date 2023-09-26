@@ -1,4 +1,4 @@
-from os import path
+from os import path, listdir
 import pygame
 
 ASSETS_PATH = "D:\\Kajtek\\Wszystko\\Programowanie\\Python\\SpaceInvadersActual\\assets"
@@ -14,6 +14,19 @@ MUSIC_VOL = 0.5
 
 def get_img_path(file_name):
     return path.join(ASSETS_IMG_PATH, file_name)
+
+
+def get_frames(folder_name, signature):
+    folder_path = path.join(ASSETS_IMG_PATH, folder_name)
+    files = listdir(folder_path)
+    frames = []
+
+    for i in range(len(files)):
+        frames.append(pygame.image.load(path.join(folder_path, list(filter(lambda x: f"{signature}{i}" in x, files))[0])))
+        print(path.join(folder_path, list(filter(lambda x: f"{signature}{i}" in x, files))[0]))
+
+    return frames
+
 
 
 def get_sound_path(file_name):

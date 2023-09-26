@@ -60,9 +60,6 @@ class GameScene(BaseScene):
         self.overheat_sound_played = False
         self.overheat_warning_border = (self.weapon_heat_max - 1 )/ self.weapon_heat_max
 
-        self.damage_text_color = colors.WHITE
-        self.heat_text_color = colors.WHITE
-
         self.return_btn = Label(Position(0, 0), self.font_normal, "Return", colors.EMPHASISE, hittable=True)
 
         self.mouse_collideBox = CollideBox(0, 0, 5, 5)
@@ -73,9 +70,12 @@ class GameScene(BaseScene):
         self.score_immunity_text = Label(Position(0, 0), self.font_normal, "", colors.WHITE)
         self.weapon_heat_text = Label(Position(0, 0), self.font_normal, "", colors.WHITE)
 
+        self.prev_mouse_pos = pygame.mouse.get_pos()
+        self.time_to_hide_mouse = 1500
+        self.time_to_hide_mouse_elapsed = 0
+
     def init(self):
         super().init()
-        print("NOW")
         self.engine_start_sound.set_volume(game_config.MUSIC_VOL)
         self.asteroid_hit_sound.set_volume(game_config.MUSIC_VOL)
         self.engine_running_sound.set_volume(game_config.MUSIC_VOL)
@@ -83,7 +83,10 @@ class GameScene(BaseScene):
         self.overheat_sound.set_volume(game_config.MUSIC_VOL * 2)
         self.explosion_sound.set_volume(game_config.MUSIC_VOL * 2)
         self.shot_sound.set_volume(game_config.MUSIC_VOL / 2)
-        self.trigger_sound.set_volume(game_config.MUSIC_VOL * 10)
+        self.trigger_sound.set_volume(game_config.MUSIC_VOL * 0.01)
+        print(game_config.MUSIC_VOL)
+
+        self.window.cursor_draw = False
 
     def update_texts(self):
         self.score_hit_text.change_text(f"HIT: {self.score_hit}")
@@ -132,7 +135,8 @@ class GameScene(BaseScene):
                         continue
 
                     bullet.draw(self.window.display)
-                    bullet.y -= round(bullet.velocity * self.deltatime)
+                    if bullet.ch_height >= 1:
+                        bullet.y -= round(bullet.velocity * self.deltatime)
 
         else:
             game_over_text = self.font_title.render("GAME OVER", 0, (255, 255, 255))
@@ -167,6 +171,7 @@ class GameScene(BaseScene):
         self.engine_running_sound.stop()
         self.engine_start_sound.stop()
         self.play_sound_once(self.explosion_sound)
+        self.player.current_animation = 2
 
     def handle_events(self, event):
         super().handle_events(event)
@@ -226,6 +231,9 @@ class GameScene(BaseScene):
         super().mainloop(deltatime)
         self.update_mouse_collide_box()
 
+        self.deltatime = deltatime
+        deltatime_ms = self.deltatime * 1000
+
         if self.mouse_collideBox.check_if_collide(self.return_btn.collide_boxes):
             self.return_btn.change_color(colors.WHITE)
             self.window.current_cursor = 1
@@ -234,25 +242,30 @@ class GameScene(BaseScene):
             self.window.current_cursor = 0
 
         if not self.game_over:
+            if self.prev_mouse_pos[0] != self.mouse_collideBox.x and self.prev_mouse_pos[1] != self.mouse_collideBox.y:
+                self.prev_mouse_pos = (self.mouse_collideBox.x, self.mouse_collideBox.y)
+                self.time_to_hide_mouse_elapsed = 0
+                self.window.cursor_draw = True
 
-            self.deltatime = deltatime
-            deltatime_ms = self.deltatime * 1000
+            elif self.time_to_hide_mouse_elapsed < self.time_to_hide_mouse:
+                self.time_to_hide_mouse_elapsed += deltatime_ms
+            else:
+                self.window.cursor_draw = False
 
             if 900 < self.time_to_start <= 1000:
+                self.player.animate = True
                 self.play_sound_once(self.engine_start_sound)
 
             if self.time_to_start <= 0:
                 if self.engine_start_sound.get_num_channels() == 0:
                     self.play_sound_once(self.engine_running_sound)
 
-                # TODO: FIX THIS F***ING SHIT WITH COLORS!!!
-
                 if self.weapon_heat / self.weapon_heat_max >= self.overheat_warning_border and self.weapon_heat != self.weapon_heat_max:
                     self.weapon_heat_text.change_color(colors.WARNING)
                 elif self.weapon_heat == self.weapon_heat_max:
-                    self.heat_text_color = colors.HIGH_WARNING
+                    self.weapon_heat_text.change_color(colors.WARNING)
                 else:
-                    self.heat_text_color = colors.WHITE
+                    self.weapon_heat_text.change_color(colors.WHITE)
 
                 self.elapsed_time += deltatime_ms
                 self.time_to_cool_elapsed += deltatime_ms
@@ -290,9 +303,9 @@ class GameScene(BaseScene):
 
                         if self.player.immunity / self.player.immunity_max <= 0.18 and self.player.immunity > 0:
                             self.play_sound_once(self.warning_sound)
-                            self.damage_text_color = colors.HIGH_WARNING
+                            self.score_immunity_text.change_color(colors.HIGH_WARNING)
                         elif self.player.immunity / self.player.immunity_max <= 0.45 and self.player.immunity > 0:
-                            self.damage_text_color = colors.WARNING
+                            self.score_immunity_text.change_color(colors.WARNING)
                         continue
 
                     if asteroid in self.asteroids:
@@ -303,5 +316,7 @@ class GameScene(BaseScene):
                                 self.score_hit += 1
             else:
                 self.time_to_start -= deltatime_ms
+        else:
+            self.window.cursor_draw = True
 
 

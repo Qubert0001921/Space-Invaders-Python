@@ -19,6 +19,7 @@ class Label(Renderable):
 
     def change_color(self, color):
         self.text = self.font.render(self.content, int(self.antialias), color)
+        self.text_color = color
 
     def refresh_collide_box(self):
         self.collide_boxes = [CollideBox(self.pos.x, self.pos.y, self.text.get_width(), self.text.get_height())]

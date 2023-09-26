@@ -2,6 +2,7 @@ import pygame
 import game_config
 from CollideBox import CollideBox
 from Hittable import Hittable
+import math
 
 
 class Bullet(Hittable):
@@ -18,12 +19,22 @@ class Bullet(Hittable):
         self.img = pygame.transform.scale(self.img, (self.height, self.width))
         self.img = pygame.transform.rotate(self.img, 90)
 
+        self.ch_height = 0.0
+        self.ch_height_speed = 0.1
+
         self.collide_boxes = [
             CollideBox(self.x + 1, self.y + 1, self.width - 1, self.height - 2)
         ]
 
     def draw(self, display):
-        display.blit(self.img, (self.x, self.y))
+        if self.ch_height < 1:
+            if self.ch_height + self.ch_height_speed > 1:
+                self.ch_height = 1
+            else:
+                self.ch_height += self.ch_height_speed
+
+
+        display.blit(pygame.transform.scale(self.img, (self.width, self.ch_height * self.height)), (self.x, self.y + self.height - (self.ch_height * self.height)))
 
         self.collide_boxes = [
             CollideBox(self.x + 1, self.y + 1, self.width - 1, self.height - 2)
