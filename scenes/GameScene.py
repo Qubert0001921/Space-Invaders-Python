@@ -120,7 +120,8 @@ class GameScene(BaseScene):
             for asteroid in self.asteroids:
                 if asteroid.y > self.window.display.get_height():
                     self.asteroids.remove(asteroid)
-                    self.score_missed += 1
+                    if asteroid.hittable:
+                        self.score_missed += 1
                     continue
 
                 asteroid.draw(self.window.display)
@@ -227,6 +228,10 @@ class GameScene(BaseScene):
         self.mouse_collideBox.x = mouse_pos[0]
         self.mouse_collideBox.y = mouse_pos[1]
 
+    def destroy_asteroid(self, asteroid):
+        asteroid.hittable = False
+        asteroid.animate = True
+
     def mainloop(self, deltatime):
         super().mainloop(deltatime)
         self.update_mouse_collide_box()
@@ -291,14 +296,16 @@ class GameScene(BaseScene):
 
                     # self.time_to_cool = max(self.time_to_cool - (self.weapon_heat // 2 * 100), 200)
                     self.time_to_cool = max(self.weapon_heat / self.weapon_heat_max * self.time_to_cool_max, self.time_to_cool_min)
-                    print((self.time_to_cool_max * max(self.weapon_heat_max - self.weapon_heat, 1) * 0.1))
 
                 for asteroid in self.asteroids:
                     if asteroid.check_collision(self.player):
                         self.player.decrement_immunity(asteroid.velocity)
                         if self.player.immunity <= 0:
                             self.on_defeat()
-                        self.asteroids.remove(asteroid)
+
+                        self.destroy_asteroid(asteroid)
+                        asteroid.velocity /= 2
+                        # self.asteroids.remove(asteroid)
                         self.play_sound_once(self.asteroid_hit_sound)
 
                         if self.player.immunity / self.player.immunity_max <= 0.18 and self.player.immunity > 0:
@@ -311,7 +318,8 @@ class GameScene(BaseScene):
                     if asteroid in self.asteroids:
                         for bullet in self.bullets:
                             if bullet.check_collision(asteroid):
-                                self.asteroids.remove(asteroid)
+                                self.destroy_asteroid(asteroid)
+                                # self.play_sound_once(self.asteroid_hit_sound)
                                 self.bullets.remove(bullet)
                                 self.score_hit += 1
             else:

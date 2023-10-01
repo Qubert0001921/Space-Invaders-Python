@@ -2,13 +2,15 @@ import pygame
 import game_config
 from CollideBox import CollideBox
 from Hittable import Hittable
+from Animationable import Animationable
 import math
 import random
 
 
-class SpaceShip(Hittable):
+class SpaceShip(Hittable, Animationable):
     def __init__(self, width, height, x, y):
         super().__init__()
+        super().__init__(animation_speed=0.2, )
         self.width = width
         self.height = height
         self.x = x

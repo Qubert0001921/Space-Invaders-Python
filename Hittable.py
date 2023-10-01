@@ -2,8 +2,10 @@ from CollideBox import CollideBox
 
 
 class Hittable(object):
-    def __init__(self):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.collide_boxes = []
+        self.hittable = True
 
     def add_collide_box(self, collide_box: CollideBox):
         self.collide_boxes.append(collide_box)
