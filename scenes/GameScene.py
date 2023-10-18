@@ -319,7 +319,7 @@ class GameScene(BaseScene):
                         for bullet in self.bullets:
                             if bullet.check_collision(asteroid):
                                 self.destroy_asteroid(asteroid)
-                                # self.play_sound_once(self.asteroid_hit_sound)
+                                self.play_sound_once(self.asteroid_hit_sound)
                                 self.bullets.remove(bullet)
                                 self.score_hit += 1
             else:

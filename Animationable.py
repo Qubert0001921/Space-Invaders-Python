@@ -5,8 +5,6 @@ import pygame
 class Animationable(object):
     def __init__(self,
                  animation_speed,
-                 frame_idle,
-                 frame_idle_size=(0, 0),
                  animate=False,
                  show=True,
                  current_frame=0,
@@ -23,9 +21,12 @@ class Animationable(object):
         self.current_frame_index = current_frame
         self.animation_speed = animation_speed
 
-        self.frame_idle = frame_idle
-        if not Animationable.check_if_size_is_default(frame_idle_size):
-            self.frame_idle = pygame.transform.scale(self.frame_idle, frame_idle_size)
+        self.frame_idle = None
+
+    def set_frame_idle(self, frame, size=(0, 0)):
+        self.frame_idle = frame
+        if not Animationable.check_if_size_is_default(size):
+            self.frame_idle = pygame.transform.scale(self.frame_idle, size)
 
     def on_animation_end(self):
         self.current_frame_index = 0

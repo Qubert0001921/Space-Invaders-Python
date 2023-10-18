@@ -7,10 +7,9 @@ import math
 import random
 
 
-class SpaceShip(Hittable, Animationable):
+class SpaceShip(Hittable):
     def __init__(self, width, height, x, y):
         super().__init__()
-        super().__init__(animation_speed=0.2, )
         self.width = width
         self.height = height
         self.x = x
