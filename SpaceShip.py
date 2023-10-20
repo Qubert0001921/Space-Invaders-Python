@@ -40,11 +40,24 @@ class SpaceShip(Hittable):
         self.current_frame = 0
         self.animation_speed = 0.2
         self.current_animation = 0
+        self.animate = False
 
         self.img = pygame.transform.scale(self.img, (self.width, self.height))
         self.immunity_max = 5
+        # self.immunity = self.immunity_max
+        self.immunity = 0
+
+    def set_default_settings(self):
+        self.velocity = 500
+        self.show = True
+
+        self.current_frame = 0
+        self.animation_speed = 0.2
+        self.current_animation = 0
+
         self.immunity = self.immunity_max
-        # self.immunity = 0.1
+        # self.immunity = 4
+        # self.immunity = 0
 
     def decrement_immunity(self, asteroid_velocity):
         self.immunity -= asteroid_velocity / game_config.MAX_ASTEROID_VELOCITY
@@ -54,15 +67,16 @@ class SpaceShip(Hittable):
 
     def draw(self, display):
         if self.show:
-            self.current_frame += self.animation_speed
-            if self.current_frame >= len(self.animations[self.current_animation]) - 1:
-                self.current_frame = 0
+            if self.animate:
+                self.current_frame += self.animation_speed
+                if self.current_frame >= len(self.animations[self.current_animation]) - 1:
+                    self.current_frame = 0
 
-                if self.current_animation == 0:
-                    self.current_animation = 1
+                    if self.current_animation == 0:
+                        self.current_animation = 1
 
-                if self.current_animation == 2:
-                    self.show = False
+                    if self.current_animation == 2:
+                        self.show = False
 
             display.blit(self.animations[self.current_animation][math.floor(self.current_frame)], (self.x, self.y))
 

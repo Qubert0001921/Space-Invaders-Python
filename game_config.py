@@ -23,7 +23,7 @@ def get_frames(folder_name, signature):
 
     for i in range(len(files)):
         frames.append(pygame.image.load(path.join(folder_path, list(filter(lambda x: f"{signature}{i}" in x, files))[0])))
-        print(path.join(folder_path, list(filter(lambda x: f"{signature}{i}" in x, files))[0]))
+        # print(path.join(folder_path, list(filter(lambda x: f"{signature}{i}" in x, files))[0]))
 
     return frames
 

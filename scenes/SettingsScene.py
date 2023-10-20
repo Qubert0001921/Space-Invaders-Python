@@ -31,6 +31,10 @@ class SettingsScene(BaseScene):
 
     def handle_events(self, event):
         super().handle_events(event)
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.on_back_button_pressed()
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             self.mouse_btn_clicked = pygame.mouse.get_pressed()
 

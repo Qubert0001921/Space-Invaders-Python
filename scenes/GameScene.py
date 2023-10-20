@@ -20,7 +20,8 @@ class GameScene(BaseScene):
         self.bg_img = pygame.image.load(game_config.get_img_path("space.png"))
         self.bg_img = pygame.transform.scale(self.bg_img, (self.window.width, self.window.height))
 
-        self.player = SpaceShip(80, 100, self.window.display.get_width()//2 - 40, self.window.height - 110)
+        self.default_player_position = (self.window.display.get_width() // 2 - 40, self.window.height - 110)
+        self.player = SpaceShip(80, 100, self.default_player_position[0], self.default_player_position[1])
         self.bullets = []
         self.asteroids = []
 
@@ -44,7 +45,7 @@ class GameScene(BaseScene):
         self.time_to_cool_elapsed = 0
         self.time_to_cool_min = 700
 
-        self.time_to_start = 0000
+        self.time_to_start = 1000
 
         pygame.mixer.set_num_channels(10)
 
@@ -74,8 +75,24 @@ class GameScene(BaseScene):
         self.time_to_hide_mouse = 1500
         self.time_to_hide_mouse_elapsed = 0
 
+        self.pause = False
+        self.exit_btn = Label(Position(0, 0), self.font_normal, "Exit to menu", colors.EMPHASISE, hittable=True)
+
     def init(self):
         super().init()
+        self.weapon_heat = 0
+        self.score_missed = 0
+        self.score_hit = 0
+        self.player.set_default_settings()
+        self.game_over = False
+        self.time_to_asteroids = 2000
+        self.asteroids = []
+        self.player.x = self.default_player_position[0]
+        self.player.y = self.default_player_position[1]
+        self.bullets = []
+        self.pause = False
+        pygame.mixer.unpause()
+
         self.engine_start_sound.set_volume(game_config.MUSIC_VOL)
         self.asteroid_hit_sound.set_volume(game_config.MUSIC_VOL)
         self.engine_running_sound.set_volume(game_config.MUSIC_VOL)
@@ -83,8 +100,7 @@ class GameScene(BaseScene):
         self.overheat_sound.set_volume(game_config.MUSIC_VOL * 2)
         self.explosion_sound.set_volume(game_config.MUSIC_VOL * 2)
         self.shot_sound.set_volume(game_config.MUSIC_VOL / 2)
-        self.trigger_sound.set_volume(game_config.MUSIC_VOL * 0.01)
-        print(game_config.MUSIC_VOL)
+        self.trigger_sound.set_volume(game_config.MUSIC_VOL * 0.1)
 
         self.window.cursor_draw = False
 
@@ -93,6 +109,15 @@ class GameScene(BaseScene):
         self.score_missed_text.change_text(f"MISSED: {self.score_missed}")
         self.score_immunity_text.change_text(f"DAMAGE: {round((self.player.immunity_max - self.player.immunity) / self.player.immunity_max * 100)}%")
         self.weapon_heat_text.change_text(f"HEAT: {round(self.weapon_heat / self.weapon_heat_max * 100)}%")
+
+    def set_settings_on_pause(self):
+        self.player.animate = self.pause
+        self.pause = not self.pause
+
+        if self.pause:
+            pygame.mixer.pause()
+        else:
+            pygame.mixer.unpause()
 
     def draw(self):
         super().draw()
@@ -125,10 +150,12 @@ class GameScene(BaseScene):
                     continue
 
                 asteroid.draw(self.window.display)
-                asteroid.y += round(asteroid.velocity * self.deltatime)
+                if not self.pause:
+                    asteroid.y += round(asteroid.velocity * self.deltatime)
 
             if self.time_to_start <= 0:
-                self.player_movement()
+                if not self.pause:
+                    self.player_movement()
 
                 for bullet in self.bullets:
                     if bullet.y + bullet.height < 0 or bullet.y >= self.window.height:
@@ -136,8 +163,23 @@ class GameScene(BaseScene):
                         continue
 
                     bullet.draw(self.window.display)
-                    if bullet.ch_height >= 1:
-                        bullet.y -= round(bullet.velocity * self.deltatime)
+
+                    if not self.pause:
+                        if bullet.ch_height >= 1:
+                            bullet.y -= round(bullet.velocity * self.deltatime)
+
+                if self.pause:
+                    pause_text = self.font_title.render("pause", 0, colors.WHITE)
+                    pause_text_pos = (self.window.display.get_width()//2 - pause_text.get_width()//2, self.window.display.get_height() // 2 - pause_text.get_height())
+
+                    pause_subtext = self.font_normal.render("press esc key to unpause", 0, colors.WHITE)
+                    pause_subtext_pos = (self.window.display.get_width()//2 - pause_subtext.get_width()//2, pause_text_pos[1]+4 + pause_text.get_height())
+
+                    self.window.display.blit(pause_text, pause_text_pos)
+                    self.window.display.blit(pause_subtext, pause_subtext_pos)
+
+                    obj_renderer = ObjectRenderer(self.window.display.get_width()//2 - self.exit_btn.width//2, pause_subtext_pos[1] + 4 + pause_subtext.get_height(), self.window.display)
+                    obj_renderer.render(self.exit_btn, 0, 0)
 
         else:
             game_over_text = self.font_title.render("GAME OVER", 0, (255, 255, 255))
@@ -184,11 +226,11 @@ class GameScene(BaseScene):
 
                 if self.weapon_heat < self.weapon_heat_max:
                     if self.player.immunity < self.player.immunity_max:
-                        if random.randrange(0, self.player.immunity_max - round(self.player.immunity) + 1) == 1:
+                        if random.randrange(0, self.player.immunity_max - round(self.player.immunity) + 1) <= 2:
                             self.bullets.append(Bullet(self.player.x + self.player.width // 2 + 20, self.player.y - 6))
                             self.weapon_heat += 0.5
                             shot = True
-                        if random.randrange(0, self.player.immunity_max - round(self.player.immunity) + 1) == 1:
+                        if random.randrange(0, self.player.immunity_max - round(self.player.immunity) + 1) < 2:
                             self.bullets.append(Bullet(self.player.x + self.player.width // 2 - 33, self.player.y - 6))
                             self.weapon_heat += 0.5
                             shot = True
@@ -205,6 +247,8 @@ class GameScene(BaseScene):
                     if self.weapon_heat == self.weapon_heat_max and not self.overheat_sound_played:
                         self.play_sound_once(self.overheat_sound)
                         self.overheat_sound_played = True
+            if event.key == pygame.K_ESCAPE and self.time_to_start <= 0:
+                self.set_settings_on_pause()
         if event.type == pygame.MOUSEBUTTONDOWN:
             self.mouse_btns = pygame.mouse.get_pressed()
         if event.type == pygame.MOUSEBUTTONUP:
@@ -215,6 +259,9 @@ class GameScene(BaseScene):
                 self.mouse_collideBox.y = mouse_pos[1]
 
                 if self.mouse_collideBox.check_if_collide(self.return_btn.collide_boxes):
+                    self.on_return_clicked()
+
+                if self.mouse_collideBox.check_if_collide(self.exit_btn.collide_boxes):
                     self.on_return_clicked()
 
     def play_sound_once(self, sound):
@@ -246,7 +293,14 @@ class GameScene(BaseScene):
             self.return_btn.change_color(colors.EMPHASISE)
             self.window.current_cursor = 0
 
-        if not self.game_over:
+        if self.mouse_collideBox.check_if_collide(self.exit_btn.collide_boxes):
+            self.exit_btn.change_color(colors.WHITE)
+            self.window.current_cursor = 1
+        else:
+            self.exit_btn.change_color(colors.EMPHASISE)
+            self.window.current_cursor = 0
+
+        if not self.game_over and not self.pause:
             if self.prev_mouse_pos[0] != self.mouse_collideBox.x and self.prev_mouse_pos[1] != self.mouse_collideBox.y:
                 self.prev_mouse_pos = (self.mouse_collideBox.x, self.mouse_collideBox.y)
                 self.time_to_hide_mouse_elapsed = 0
